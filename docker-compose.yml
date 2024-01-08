@@ -1,0 +1,22 @@
+version: '3'
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - /Users/benjaminesterre/Desktop/freebox/prometheuse.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - monitoring
+
+  freebox-monitoring:
+    image: monimage
+    container_name: freebox-monitoring
+    restart: always
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
