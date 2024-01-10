@@ -73,3 +73,38 @@ def lan_browser_pub_metrics(headers):
         lan_browser_pub = get_or_create_gauge('freebox_lan_browser_pub', 'Lan browser pub', ['mac_address', 'vendor_name', 'host_type', 'last_time_reachable', 'ip', 'last_activity', 'access_point', 'default_name', 'first_activity', 'primary_name'])
 
         lan_browser_pub.labels(mac_address=mac_address,vendor_name=vendor_name,host_type=host_type,last_time_reachable=last_time_reachable,ip=ip,last_activity=last_activity,access_point=access_point,default_name=default_name,first_activity=first_activity,primary_name=primary_name).set(1 if reachable else 0)
+
+# def port_forwarding(headers):
+#     port_forwarding_request = get_request("/fw/redir/", headers=headers)
+#     for item in port_forwarding_request['result']:
+#         id = item['id']
+#         enabled = item['enabled']
+#         type = item['type']
+#         active = item['active']
+#         max_port = item['max_port']
+#         min_port = item['min_port']
+#         in_port = item['in_port']
+#         readonly = item['readonly']
+#         netns = item['netns']
+
+#         metric_name = f'port_forwarding_config_{id}'
+#         metric = Gauge(metric_name, f'Port Forwarding Configuration for {id}', ['type', 'enabled', 'active', 'readonly', 'netns'])
+#         metric.labels(type=type, enabled=str(enabled), active=str(active), readonly=str(readonly), netns=netns).set(1 if enabled else 0)
+
+
+def port_incoming(headers):
+    port_incoming_request = get_request("/fw/incoming/", headers=headers)
+    for item in port_incoming_request['result']:
+        id = item['id']
+        enabled = item['enabled']
+        type = item['type']
+        active = item['active']
+        max_port = item['max_port']
+        min_port = item['min_port']
+        in_port = item['in_port']
+        readonly = item['readonly']
+        netns = item['netns']
+
+        port_incoming = get_or_create_gauge('freebox_port_incoming', 'Port incoming', ['id', 'enabled', 'type', 'active', 'max_port', 'min_port', 'in_port', 'readonly', 'netns'])
+        port_incoming.labels(id=id, type=type, enabled=str(enabled), active=str(active), max_port=max_port, min_port=min_port, in_port=in_port, readonly=str(readonly), netns=netns).set(1 if enabled else 0)
+    
