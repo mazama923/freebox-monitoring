@@ -2,7 +2,6 @@ import requests
 from dotenv import load_dotenv
 import os
 
-
 def get_url():
     load_dotenv()
     freebox_api_version_request = requests.get(

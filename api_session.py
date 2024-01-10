@@ -5,7 +5,6 @@ import os
 import requests
 from api_request import get_url
 
-
 def open_session():
     load_dotenv()
 

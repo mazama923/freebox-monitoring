@@ -1,15 +1,14 @@
 import os
+import time
 from dotenv import load_dotenv
 from prometheus_client import start_http_server, Gauge, Info
 from api_request import get_request
 
 existing_metrics = {}
 
-
 def start_prometheus():
     load_dotenv()
-    start_http_server(8000)
-
+    start_http_server(int(os.getenv("PORT_HTTP")))
 
 def get_or_create_gauge(name, description, labelnames=[]):
     if name not in existing_metrics:
@@ -31,7 +30,6 @@ def get_or_create_info(name, description):
 
 def system_metrics(headers):
     system_request = get_request("system/", headers=headers)
-
     temp_t1 = system_request['result']['sensors'][1]['value']
     temp_t2 = system_request['result']['sensors'][0]['value']
     temp_t3 = system_request['result']['sensors'][2]['value']
@@ -69,9 +67,7 @@ def lan_browser_pub_metrics(headers):
         default_name = item['default_name']
         first_activity = item['first_activity']
         primary_name = item['primary_name']
-
         lan_browser_pub = get_or_create_gauge('freebox_lan_browser_pub', 'Lan browser pub', ['mac_address', 'vendor_name', 'host_type', 'last_time_reachable', 'ip', 'last_activity', 'access_point', 'default_name', 'first_activity', 'primary_name'])
-
         lan_browser_pub.labels(mac_address=mac_address,vendor_name=vendor_name,host_type=host_type,last_time_reachable=last_time_reachable,ip=ip,last_activity=last_activity,access_point=access_point,default_name=default_name,first_activity=first_activity,primary_name=primary_name).set(1 if reachable else 0)
 
 # def port_forwarding(headers):
@@ -104,7 +100,6 @@ def port_incoming(headers):
         in_port = item['in_port']
         readonly = item['readonly']
         netns = item['netns']
-
         port_incoming = get_or_create_gauge('freebox_port_incoming', 'Port incoming', ['id', 'enabled', 'type', 'active', 'max_port', 'min_port', 'in_port', 'readonly', 'netns'])
         port_incoming.labels(id=id, type=type, enabled=str(enabled), active=str(active), max_port=max_port, min_port=min_port, in_port=in_port, readonly=str(readonly), netns=netns).set(1 if enabled else 0)
 
@@ -118,3 +113,10 @@ def lan_config(headers):
     ip = lan_config_request['result']['ip']
     lan_config = get_or_create_gauge('freebox_lan_config', 'Lan config', ['name_dns', 'name_mdns', 'name', 'mode', 'name_netbios', 'ip'])
     lan_config.labels(name_dns=name_dns, name_mdns=name_mdns, name=name, mode=mode, name_netbios=name_netbios, ip=ip)
+
+def time_script(start_time):
+    time_script = get_or_create_gauge('freebox_time_script', 'Metrics generation time')
+    end_time = time.time()
+    duration = end_time - start_time
+    formatted_duration = "{:.2f}".format(duration)
+    time_script.set(formatted_duration)
