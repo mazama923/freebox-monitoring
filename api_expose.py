@@ -18,7 +18,6 @@ def get_or_create_gauge(name, description, labelnames=[]):
         gauge = existing_metrics[name]
     return gauge
 
-
 def get_or_create_info(name, description):
     if name not in existing_metrics:
         info_metric = Info(name, description)
@@ -27,6 +26,12 @@ def get_or_create_info(name, description):
         info_metric = existing_metrics[name]
     return info_metric
 
+def time_script(start_time):
+    time_script = get_or_create_gauge('freebox_time_script', 'Metrics generation time')
+    end_time = time.time()
+    duration = end_time - start_time
+    formatted_duration = "{:.2f}".format(duration)
+    time_script.set(formatted_duration)
 
 def system_metrics(headers):
     system_request = get_request("system/", headers=headers)
@@ -70,22 +75,22 @@ def lan_browser_pub_metrics(headers):
         lan_browser_pub = get_or_create_gauge('freebox_lan_browser_pub', 'Lan browser pub', ['mac_address', 'vendor_name', 'host_type', 'last_time_reachable', 'ip', 'last_activity', 'access_point', 'default_name', 'first_activity', 'primary_name'])
         lan_browser_pub.labels(mac_address=mac_address,vendor_name=vendor_name,host_type=host_type,last_time_reachable=last_time_reachable,ip=ip,last_activity=last_activity,access_point=access_point,default_name=default_name,first_activity=first_activity,primary_name=primary_name).set(1 if reachable else 0)
 
-# def port_forwarding(headers):
-#     port_forwarding_request = get_request("/fw/redir/", headers=headers)
-#     for item in port_forwarding_request['result']:
-#         id = item['id']
-#         enabled = item['enabled']
-#         type = item['type']
-#         active = item['active']
-#         max_port = item['max_port']
-#         min_port = item['min_port']
-#         in_port = item['in_port']
-#         readonly = item['readonly']
-#         netns = item['netns']
-
-#         metric_name = f'port_forwarding_config_{id}'
-#         metric = Gauge(metric_name, f'Port Forwarding Configuration for {id}', ['type', 'enabled', 'active', 'readonly', 'netns'])
-#         metric.labels(type=type, enabled=str(enabled), active=str(active), readonly=str(readonly), netns=netns).set(1 if enabled else 0)
+def port_forwarding(headers):
+    port_forwarding_request = get_request("/fw/redir/", headers=headers)
+    for item in port_forwarding_request['result']:
+        id = item['id']
+        enabled = item['enabled']
+        ip_proto = item['ip_proto']
+        wan_port_start = item['wan_port_start']
+        wan_port_end = item['wan_port_end']
+        lan_ip = item['lan_ip']
+        lan_port = item['lan_port']
+        hostname = item['hostname']
+        host = item['host']
+        src_ip = item['src_ip']
+        comment = item['comment']
+        port_forwarding = get_or_create_gauge('freebox_port_forwarding', 'Port forwarding', ['id', 'enabled', 'ip_proto', 'wan_port_start', 'wan_port_end', 'lan_ip', 'lan_port', 'hostname', 'host', 'src_ip', 'comment'])
+        port_forwarding.labels(id=id, enabled=str(enabled), ip_proto=enumerate(ip_proto), wan_port_start=str(wan_port_start), wan_port_end=wan_port_end, lan_ip=str(lan_ip), lan_port=lan_port, hostname=str(hostname), host=host, src_ip=str(src_ip), comment=str(comment)).set(1 if enabled else 0)
 
 
 def port_incoming(headers):
@@ -113,10 +118,3 @@ def lan_config(headers):
     ip = lan_config_request['result']['ip']
     lan_config = get_or_create_gauge('freebox_lan_config', 'Lan config', ['name_dns', 'name_mdns', 'name', 'mode', 'name_netbios', 'ip'])
     lan_config.labels(name_dns=name_dns, name_mdns=name_mdns, name=name, mode=mode, name_netbios=name_netbios, ip=ip)
-
-def time_script(start_time):
-    time_script = get_or_create_gauge('freebox_time_script', 'Metrics generation time')
-    end_time = time.time()
-    duration = end_time - start_time
-    formatted_duration = "{:.2f}".format(duration)
-    time_script.set(formatted_duration)
