@@ -107,4 +107,14 @@ def port_incoming(headers):
 
         port_incoming = get_or_create_gauge('freebox_port_incoming', 'Port incoming', ['id', 'enabled', 'type', 'active', 'max_port', 'min_port', 'in_port', 'readonly', 'netns'])
         port_incoming.labels(id=id, type=type, enabled=str(enabled), active=str(active), max_port=max_port, min_port=min_port, in_port=in_port, readonly=str(readonly), netns=netns).set(1 if enabled else 0)
-    
+
+def lan_config(headers):
+    lan_config_request = get_request("lan/config/", headers=headers)
+    name_dns = lan_config_request['result']['name_dns']
+    name_mdns = lan_config_request['result']['name_mdns']
+    name = lan_config_request['result']['name']
+    mode = lan_config_request['result']['mode']
+    name_netbios = lan_config_request['result']['name_netbios']
+    ip = lan_config_request['result']['ip']
+    lan_config = get_or_create_gauge('freebox_lan_config', 'Lan config', ['name_dns', 'name_mdns', 'name', 'mode', 'name_netbios', 'ip'])
+    lan_config.labels(name_dns=name_dns, name_mdns=name_mdns, name=name, mode=mode, name_netbios=name_netbios, ip=ip)
