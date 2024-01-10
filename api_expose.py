@@ -63,9 +63,9 @@ def lan_browser_pub_metrics(headers):
         host_type = item['host_type']   
         last_time_reachable = item['last_time_reachable']
         ip = item['l3connectivities'][0]['addr']
-        reachable = item['reachable']
+        reachable = item.get('reachable', False)
         last_activity = item['last_activity']
-        access_point = item['access_point']
+        access_point = item.get('access_point', '')
         default_name = item['default_name']
         first_activity = item['first_activity']
         primary_name = item['primary_name']
