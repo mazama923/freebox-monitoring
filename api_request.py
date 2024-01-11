@@ -12,7 +12,6 @@ def get_url():
         freebox_major_api_version + "/"
     return api_url
 
-
 def get_request(endpoint, params=None, headers=None):
     url_api = get_url()
     response = requests.get(url_api + endpoint, params=params, headers=headers)
