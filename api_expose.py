@@ -2,7 +2,7 @@ import os
 import time
 from dotenv import load_dotenv
 from prometheus_client import start_http_server, Gauge, Info
-from api_request import get_request
+from api_request import get_request, post_with_headers_request
 
 existing_metrics = {}
 
@@ -137,3 +137,19 @@ def vpn_connection(headers):
         vpn_connection.labels(rx_bytes=rx_bytes, tx_bytes=tx_bytes, user=user, vpn=vpn, src_port=src_port, src_ip=src_ip, auth_time=auth_time, local_ip=local_ip)
     else:
         print("No user connect to VPN.")
+
+def rrd_net(headers):
+    session_data = {
+        "db": "net",
+        "fields": [ "bw_up", "bw_down", "rate_up", "rate_down", "vpn_rate_up", "vpn_rate_down" ],
+        "precision": 1
+    }
+    rrd_net_request = post_with_headers_request("rrd/", session_data, headers=headers)
+    bw_up = rrd_net_request['result'][0]['data']['bw_up']
+    bw_down = rrd_net_request['result'][0]['data']['bw_down']
+    rate_up = rrd_net_request['result'][0]['data']['rate_up']
+    rate_down = rrd_net_request['result'][0]['data']['bw_up']
+    vpn_rate_up = rrd_net_request.get(['result'][0]['data']['vpn_rate_up'], '')
+    vpn_rate_down = rrd_net_request.get(['result'][0]['data']['vpn_rate_down'], '')
+    rrd_net_request = get_or_create_gauge('freebox_net', 'Net stats', ['bw_up', 'bw_down', 'rate_up', 'rate_down', 'vpn_rate_up', 'vpn_rate_down'])
+    rrd_net_request.labels(bw_up=bw_up, bw_down=bw_down, rate_up=rate_up, rate_down=rate_down, vpn_rate_up=vpn_rate_up, vpn_rate_down=vpn_rate_down)

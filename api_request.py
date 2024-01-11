@@ -23,3 +23,8 @@ def post_request(endpoint, data):
     url_api = get_url()
     response = requests.post(url_api + endpoint, json=data)
     return response.json()
+
+def post_with_headers_request(endpoint, data, headers=None):
+    url_api = get_url()
+    response = requests.post(url_api + endpoint, json=data, headers=headers)
+    return response.json()
