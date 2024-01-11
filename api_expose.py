@@ -75,26 +75,39 @@ def lan_browser_pub_metrics(headers):
         lan_browser_pub = get_or_create_gauge('freebox_lan_browser_pub', 'Lan browser pub', ['mac_address', 'vendor_name', 'host_type', 'last_time_reachable', 'ip', 'last_activity', 'access_point', 'default_name', 'first_activity', 'primary_name'])
         lan_browser_pub.labels(mac_address=mac_address,vendor_name=vendor_name,host_type=host_type,last_time_reachable=last_time_reachable,ip=ip,last_activity=last_activity,access_point=access_point,default_name=default_name,first_activity=first_activity,primary_name=primary_name).set(1 if reachable else 0)
 
-def port_forwarding(headers):
-    port_forwarding_request = get_request("/fw/redir/", headers=headers)
-    for item in port_forwarding_request['result']:
-        id = item['id']
-        enabled = item['enabled']
-        ip_proto = item['ip_proto']
-        wan_port_start = item['wan_port_start']
-        wan_port_end = item['wan_port_end']
-        lan_ip = item['lan_ip']
-        lan_port = item['lan_port']
-        hostname = item['hostname']
-        host = item['host']
-        src_ip = item['src_ip']
-        comment = item['comment']
-        port_forwarding = get_or_create_gauge('freebox_port_forwarding', 'Port forwarding', ['id', 'enabled', 'ip_proto', 'wan_port_start', 'wan_port_end', 'lan_ip', 'lan_port', 'hostname', 'host', 'src_ip', 'comment'])
-        port_forwarding.labels(id=id, enabled=str(enabled), ip_proto=enumerate(ip_proto), wan_port_start=str(wan_port_start), wan_port_end=wan_port_end, lan_ip=str(lan_ip), lan_port=lan_port, hostname=str(hostname), host=host, src_ip=str(src_ip), comment=str(comment)).set(1 if enabled else 0)
+def lan_config(headers):
+    lan_config_request = get_request("lan/config/", headers=headers)
+    name_dns = lan_config_request['result']['name_dns']
+    name_mdns = lan_config_request['result']['name_mdns']
+    name = lan_config_request['result']['name']
+    mode = lan_config_request['result']['mode']
+    name_netbios = lan_config_request['result']['name_netbios']
+    ip = lan_config_request['result']['ip']
+    lan_config = get_or_create_gauge('freebox_lan_config', 'Lan config', ['name_dns', 'name_mdns', 'name', 'mode', 'name_netbios', 'ip'])
+    lan_config.labels(name_dns=name_dns, name_mdns=name_mdns, name=name, mode=mode, name_netbios=name_netbios, ip=ip)
 
+def port_forwarding(headers):
+    port_forwarding_request = get_request("fw/redir/", headers=headers)
+    if 'result' in port_forwarding_request and port_forwarding_request['success']:
+        for item in port_forwarding_request['result']:
+            id = item.get('id', '')
+            enabled = item.get('enabled', '')
+            ip_proto = item.get('ip_proto', '')
+            wan_port_start = item.get('wan_port_start', '')
+            wan_port_end = item.get('wan_port_end', '')
+            lan_ip = item.get('lan_ip', '')
+            lan_port = item.get('lan_port', '')
+            hostname = item.get('hostname', '')
+            host = item.get('host', '')
+            src_ip = item.get('src_ip', '')
+            comment = item.get('comment', '')
+            port_forwarding = get_or_create_gauge('freebox_port_forwarding', 'Port forwarding', ['id', 'enabled', 'ip_proto', 'wan_port_start', 'wan_port_end', 'lan_ip', 'lan_port', 'hostname', 'host', 'src_ip', 'comment'])
+            port_forwarding.labels(id=id, enabled=str(enabled), ip_proto=enumerate(ip_proto), wan_port_start=str(wan_port_start), wan_port_end=wan_port_end, lan_ip=str(lan_ip), lan_port=lan_port, hostname=str(hostname), host=host, src_ip=str(src_ip), comment=str(comment)).set(1 if enabled else 0)
+    else:
+        print("No port forwarding rules found.")
 
 def port_incoming(headers):
-    port_incoming_request = get_request("/fw/incoming/", headers=headers)
+    port_incoming_request = get_request("fw/incoming/", headers=headers)
     for item in port_incoming_request['result']:
         id = item['id']
         enabled = item['enabled']
@@ -108,13 +121,19 @@ def port_incoming(headers):
         port_incoming = get_or_create_gauge('freebox_port_incoming', 'Port incoming', ['id', 'enabled', 'type', 'active', 'max_port', 'min_port', 'in_port', 'readonly', 'netns'])
         port_incoming.labels(id=id, type=type, enabled=str(enabled), active=str(active), max_port=max_port, min_port=min_port, in_port=in_port, readonly=str(readonly), netns=netns).set(1 if enabled else 0)
 
-def lan_config(headers):
-    lan_config_request = get_request("lan/config/", headers=headers)
-    name_dns = lan_config_request['result']['name_dns']
-    name_mdns = lan_config_request['result']['name_mdns']
-    name = lan_config_request['result']['name']
-    mode = lan_config_request['result']['mode']
-    name_netbios = lan_config_request['result']['name_netbios']
-    ip = lan_config_request['result']['ip']
-    lan_config = get_or_create_gauge('freebox_lan_config', 'Lan config', ['name_dns', 'name_mdns', 'name', 'mode', 'name_netbios', 'ip'])
-    lan_config.labels(name_dns=name_dns, name_mdns=name_mdns, name=name, mode=mode, name_netbios=name_netbios, ip=ip)
+def vpn_connection(headers):
+    vpn_connection_request = get_request("vpn/connection/", headers=headers)
+    if 'result' in vpn_connection_request and vpn_connection_request['success']:
+        for item in vpn_connection_request['result']:
+            rx_bytes = item['rx_bytes']
+            tx_bytes = item['tx_bytes']
+            user = item['user']
+            vpn = item['vpn']
+            src_port = item['src_port']
+            src_ip = item['src_ip']
+            auth_time = item['auth_time']
+            local_ip = item['local_ip']
+        vpn_connection = get_or_create_gauge('freebox_vpn_connection', 'User connect to VPN', ['rx_bytes', 'tx_bytes', 'user', 'vpn', 'src_port', 'src_ip', 'auth_time', 'local_ip'])                     
+        vpn_connection.labels(rx_bytes=rx_bytes, tx_bytes=tx_bytes, user=user, vpn=vpn, src_port=src_port, src_ip=src_ip, auth_time=auth_time, local_ip=local_ip)
+    else:
+        print("No user connect to VPN.")
