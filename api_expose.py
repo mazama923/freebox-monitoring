@@ -142,14 +142,15 @@ def rrd_net(headers):
     session_data = {
         "db": "net",
         "fields": [ "bw_up", "bw_down", "rate_up", "rate_down", "vpn_rate_up", "vpn_rate_down" ],
-        "precision": 1
+        "precision": 10
     }
     rrd_net_request = post_with_headers_request("rrd/", session_data, headers=headers)
-    bw_up = rrd_net_request.get('bw_up', '')
-    bw_down = rrd_net_request.get('bw_down', '')
-    rate_up = rrd_net_request.get('rate_up', '')
-    rate_down = rrd_net_request.get('rate_down', '')
-    vpn_rate_up = rrd_net_request.get('vpn_rate_up', '')
-    vpn_rate_down = rrd_net_request.get('vpn_rate_down', '')
-    rrd_net_request = get_or_create_gauge('freebox_net', 'Net stats', ['bw_up', 'bw_down', 'rate_up', 'rate_down', 'vpn_rate_up', 'vpn_rate_down'])
-    rrd_net_request.labels(bw_up=bw_up, bw_down=bw_down, rate_up=rate_up, rate_down=rate_down, vpn_rate_up=vpn_rate_up, vpn_rate_down=vpn_rate_down)
+    data0_request = rrd_net_request['result']['data'][0]
+    bw_up = data0_request.get('bw_up', '')
+    bw_down = data0_request.get('bw_down', '')
+    rate_up = data0_request.get('rate_up', '')
+    rate_down = data0_request.get('rate_down', '')
+    vpn_rate_up = data0_request.get('vpn_rate_up', '')
+    vpn_rate_down = data0_request.get('vpn_rate_down', '')
+    rrd_net = get_or_create_gauge('freebox_net_states', 'Net stats', ['bw_up', 'bw_down', 'rate_up', 'rate_down', 'vpn_rate_up', 'vpn_rate_down'])
+    rrd_net.labels(bw_up=bw_up, bw_down=bw_down, rate_up=rate_up, rate_down=rate_down, vpn_rate_up=vpn_rate_up, vpn_rate_down=vpn_rate_down)
