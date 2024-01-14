@@ -7,14 +7,31 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - /Users/benjaminesterre/Desktop/freebox/prometheuse.yml:/etc/prometheus/prometheus.yml
+      - /path/to/prometheuse.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - /path/to/grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
     networks:
       - monitoring
 
   freebox-monitoring:
-    image: monimage
+    image: freebox-monitoring
     container_name: freebox-monitoring
     restart: always
+    volumes:
+      - /path/to/token:/token
     networks:
       - monitoring
 

@@ -62,18 +62,19 @@ def lan_browser_pub_metrics(headers):
     lan_browser_pub_request = get_request("lan/browser/pub/", headers=headers)
     for item in lan_browser_pub_request['result']:
         mac_address = item['l2ident']['id']
+        active = item['active']
         vendor_name = item['vendor_name']
         host_type = item['host_type']   
         last_time_reachable = item['last_time_reachable']
         ip = item['l3connectivities'][0]['addr']
         reachable = item.get('reachable', False)
         last_activity = item['last_activity']
-        access_point = item.get('access_point', '')
         default_name = item['default_name']
+        connectivity_type = item.get('access_point', {}).get('connectivity_type', '')
         first_activity = item['first_activity']
         primary_name = item['primary_name']
-        lan_browser_pub = get_or_create_gauge('freebox_lan_browser_pub', 'Lan browser pub', ['mac_address', 'vendor_name', 'host_type', 'last_time_reachable', 'ip', 'last_activity', 'access_point', 'default_name', 'first_activity', 'primary_name'])
-        lan_browser_pub.labels(mac_address=mac_address,vendor_name=vendor_name,host_type=host_type,last_time_reachable=last_time_reachable,ip=ip,last_activity=last_activity,access_point=access_point,default_name=default_name,first_activity=first_activity,primary_name=primary_name).set(1 if reachable else 0)
+        lan_browser_pub = get_or_create_gauge('freebox_lan_browser_pub', 'Lan browser pub', ['mac_address', 'active', 'vendor_name', 'host_type', 'last_time_reachable', 'ip', 'last_activity', 'connectivity_type', 'default_name', 'first_activity', 'primary_name'])
+        lan_browser_pub.labels(mac_address=mac_address,active=active,vendor_name=vendor_name,host_type=host_type,last_time_reachable=last_time_reachable,ip=ip,last_activity=last_activity,connectivity_type=connectivity_type,default_name=default_name,first_activity=first_activity,primary_name=primary_name).set(1 if reachable else 0)
 
 def lan_config(headers):
     lan_config_request = get_request("lan/config/", headers=headers)
@@ -154,3 +155,22 @@ def rrd_net(headers):
     vpn_rate_down = data0_request.get('vpn_rate_down', '')
     rrd_net = get_or_create_gauge('freebox_net_states', 'Net stats', ['bw_up', 'bw_down', 'rate_up', 'rate_down', 'vpn_rate_up', 'vpn_rate_down'])
     rrd_net.labels(bw_up=bw_up, bw_down=bw_down, rate_up=rate_up, rate_down=rate_down, vpn_rate_up=vpn_rate_up, vpn_rate_down=vpn_rate_down)
+
+def rrd_switch(headers):
+    session_data = {
+        "db": "switch",
+        "fields": [ "rx_1", "tx_1", "rx_2", "tx_2", "rx_3", "tx_3", "rx_4", "tx_4" ],
+        "precision": 10
+    }
+    rrd_switch_request = post_with_headers_request("rrd/", session_data, headers=headers)
+    data0_request = rrd_switch_request['result']['data'][0]
+    rx_1 = data0_request.get('rx_1', '')
+    tx_1 = data0_request.get('tx_1', '')
+    rx_2 = data0_request.get('rx_2', '')
+    tx_2 = data0_request.get('tx_2', '')
+    rx_3 = data0_request.get('rx_3', '')
+    tx_3 = data0_request.get('tx_3', '')
+    rx_4 = data0_request.get('rx_4', '')
+    tx_4 = data0_request.get('tx_4', '')
+    rrd_switch = get_or_create_gauge('freebox_switch_states', 'Switch stats', ['rx_1', 'tx_1', 'rx_2', 'tx_2', 'rx_3', 'tx_3', 'rx_4', 'tx_4'])
+    rrd_switch.labels(rx_1=rx_1,tx_1=tx_1,rx_2=rx_2,tx_2=tx_2,rx_3=rx_3,tx_3=tx_3,rx_4=rx_4,tx_4=tx_4)

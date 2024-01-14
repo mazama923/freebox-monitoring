@@ -17,7 +17,6 @@ def get_request(endpoint, params=None, headers=None):
     response = requests.get(url_api + endpoint, params=params, headers=headers)
     return response.json()
 
-
 def post_request(endpoint, data):
     url_api = get_url()
     response = requests.post(url_api + endpoint, json=data)
