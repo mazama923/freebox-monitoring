@@ -103,7 +103,7 @@ def port_forwarding(headers):
             src_ip = item.get('src_ip', '')
             comment = item.get('comment', '')
             port_forwarding = get_or_create_gauge('freebox_port_forwarding', 'Port forwarding', ['id', 'enabled', 'ip_proto', 'wan_port_start', 'wan_port_end', 'lan_ip', 'lan_port', 'hostname', 'host', 'src_ip', 'comment'])
-            port_forwarding.labels(id=id, enabled=str(enabled), ip_proto=enumerate(ip_proto), wan_port_start=str(wan_port_start), wan_port_end=wan_port_end, lan_ip=str(lan_ip), lan_port=lan_port, hostname=str(hostname), host=host, src_ip=str(src_ip), comment=str(comment)).set(1 if enabled else 0)
+            port_forwarding.labels(id=id, enabled=enabled, ip_proto=ip_proto, wan_port_start=wan_port_start, wan_port_end=wan_port_end, lan_ip=lan_ip, lan_port=lan_port, hostname=hostname, host=host, src_ip=src_ip, comment=comment).set(1 if enabled else 0)
     else:
         print("No port forwarding rules found.")
 
@@ -120,7 +120,7 @@ def port_incoming(headers):
         readonly = item['readonly']
         netns = item['netns']
         port_incoming = get_or_create_gauge('freebox_port_incoming', 'Port incoming', ['id', 'enabled', 'type', 'active', 'max_port', 'min_port', 'in_port', 'readonly', 'netns'])
-        port_incoming.labels(id=id, type=type, enabled=str(enabled), active=str(active), max_port=max_port, min_port=min_port, in_port=in_port, readonly=str(readonly), netns=netns).set(1 if enabled else 0)
+        port_incoming.labels(id=id, type=type, enabled=enabled, active=active, max_port=max_port, min_port=min_port, in_port=in_port, readonly=readonly, netns=netns).set(1 if enabled else 0)
 
 def vpn_connection(headers):
     vpn_connection_request = get_request("vpn/connection/", headers=headers)
@@ -174,3 +174,37 @@ def rrd_switch(headers):
     tx_4 = data0_request.get('tx_4', '')
     rrd_switch = get_or_create_gauge('freebox_switch_states', 'Switch stats', ['rx_1', 'tx_1', 'rx_2', 'tx_2', 'rx_3', 'tx_3', 'rx_4', 'tx_4'])
     rrd_switch.labels(rx_1=rx_1,tx_1=tx_1,rx_2=rx_2,tx_2=tx_2,rx_3=rx_3,tx_3=tx_3,rx_4=rx_4,tx_4=tx_4)
+
+def storage_disk(headers):
+    storage_disk_request = get_request("storage/disk/", headers=headers)
+    if 'result' in storage_disk_request and storage_disk_request['success']:
+        for item in storage_disk_request['result']:
+            idle_duration = item['idle_duration']
+            read_error_requests = item['read_error_requests']
+            read_requests = item['read_requests']
+            spinning = item['spinning']
+            table_type = item['table_type']
+            firmware = item['firmware']
+            type = item['type']
+            idle = item['idle']
+            connector = item['connector']
+            id = item['id']
+            write_error_requests = item['write_error_requests']
+            state = item['state']
+            write_requests = item['write_requests']
+            total_bytes = item['total_bytes']
+            model = item['model']
+            active_duration = item['active_duration']
+            temp = item['temp']
+            serial = item['serial']
+            fstype = item['partitions'][0]['fstype']
+            label = item['partitions'][0]['label']
+            internal = item['partitions'][0]['internal']
+            fsck_result = item['partitions'][0]['fsck_result']
+            free_bytes = item['partitions'][0]['free_bytes']
+            used_bytes = item['partitions'][0]['used_bytes']
+            path = item['partitions'][0]['path']
+        storage_disk = get_or_create_gauge('freebox_storage_disk', 'Disk status', ['idle_duration', 'read_error_requests', 'read_requests', 'spinning', 'table_type', 'firmware', 'type', 'idle', 'connector', 'id', 'write_error_requests', 'state', 'write_requests', 'total_bytes', 'model', 'active_duration', 'temp', 'serial', 'fstype', 'label', 'internal', 'fsck_result', 'free_bytes', 'used_bytes', 'path'])                     
+        storage_disk.labels(idle_duration=idle_duration,read_error_requests=read_error_requests,read_requests=read_requests,spinning=spinning,table_type=table_type,firmware=firmware,type=type,idle=idle,connector=connector,id=id,write_error_requests=write_error_requests,state=state,write_requests=write_requests,total_bytes=total_bytes,model=model,active_duration=active_duration,temp=temp,serial=serial,fstype=fstype,label=label,internal=internal,fsck_result=fsck_result,free_bytes=free_bytes,used_bytes=used_bytes,path=path)
+    else:
+        print("No disk connected.")
