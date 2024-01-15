@@ -2,7 +2,7 @@ import time
 import os
 from dotenv import load_dotenv
 from api_session import open_session, close_session
-from api_expose import start_prometheus, system_metrics, lan_browser_pub_metrics, lan_config, port_forwarding, port_incoming, time_script, vpn_connection, rrd_net, rrd_switch
+from api_expose import start_prometheus, system_metrics, lan_browser_pub_metrics, lan_config, port_forwarding, port_incoming, time_script, vpn_connection, rrd_net, rrd_switch, storage_disk
 
 load_dotenv()
 interrupted = False
@@ -20,6 +20,7 @@ try:
         vpn_connection(headers)
         rrd_net(headers)
         rrd_switch(headers)
+        storage_disk(headers)
         time_script(start_time)
         time.sleep(int(os.getenv("SCRAPE_INTERVAL")))
 
