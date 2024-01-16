@@ -7,7 +7,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - /path/to/prometheuse.yml:/etc/prometheus/prometheus.yml
+      - /path/to/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - monitoring
 
