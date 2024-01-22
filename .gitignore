@@ -1,4 +1,5 @@
 token.json
 /token
+/app/token
 /__pycache__
 /app/__pycache__
