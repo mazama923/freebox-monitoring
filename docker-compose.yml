@@ -27,7 +27,7 @@ services:
       - monitoring
 
   freebox-monitoring:
-    image: benlexa/freebox-monitoring
+    image: benlexa/freebox-monitoring:1.0  
     container_name: freebox-monitoring
     restart: always
     volumes:

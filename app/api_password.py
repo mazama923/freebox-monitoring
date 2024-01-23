@@ -3,6 +3,7 @@ import hashlib
 from api_request import get_request
 from api_token import load_token, obtain_app_token
 
+
 def obtain_password():
     stored_token = load_token()
     if stored_token:

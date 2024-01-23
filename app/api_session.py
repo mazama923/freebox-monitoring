@@ -5,6 +5,7 @@ import os
 import requests
 from api_request import get_url
 
+
 def open_session():
     load_dotenv()
 
@@ -27,7 +28,8 @@ def open_session():
 
 
 def close_session(headers):
+    load_dotenv()
     url_api = get_url()
     session_response = requests.post(
-        url_api + "login/logout/", headers=headers)
+        url_api + "login/logout/", headers=headers, verify=os.getenv("CERT_FILE_PATH"))
     return session_response.json()
