@@ -3,28 +3,36 @@ from api_request import post_request
 from api_password import obtain_password
 import os
 import requests
+import time
 from api_request import get_url
 
 
 def open_session():
     load_dotenv()
 
-    password = obtain_password()
+    max_attempts = 3
+    attempts = 0
 
-    session_data = {
-        "app_id": os.getenv("APP_ID"),
-        "password": password
-    }
+    while attempts < max_attempts:
+        password = obtain_password()
 
-    session_response = post_request("login/session/", session_data)
+        session_data = {
+            "app_id": os.getenv("APP_ID"),
+            "password": password
+        }
+        session_response = post_request("login/session/", session_data)
 
-    if session_response["success"]:
-        session_token = session_response["result"]["session_token"]
-        headers = {"X-Fbx-App-Auth": session_token}
-        return headers
-    else:
-        print("Échec de l'ouverture de session.")
-    print(session_response)
+        if session_response["success"]:
+            session_token = session_response["result"]["session_token"]
+            headers = {"X-Fbx-App-Auth": session_token}
+            print("Session open: Success")
+            return headers
+        else:
+            attempts += 1
+            print("Session open: Fail")
+            print(session_response)
+            if attempts < max_attempts:
+                time.sleep(1)
 
 
 def close_session(headers):
