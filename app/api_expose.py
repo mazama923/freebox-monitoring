@@ -1,5 +1,6 @@
 import os
 import time
+import concurrent.futures
 from dotenv import load_dotenv
 from prometheus_client import start_http_server, Gauge, Info
 from api_request import get_request, post_with_headers_request
@@ -11,6 +12,20 @@ def start_prometheus():
     load_dotenv()
     start_http_server(int(os.getenv("PORT_HTTP")))
 
+def concurrent_requests(headers):
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [
+            executor.submit(system_metrics, headers),
+            executor.submit(lan_browser_pub_metrics, headers),
+            executor.submit(lan_config, headers),
+            executor.submit(port_forwarding, headers),
+            executor.submit(port_incoming, headers),
+            executor.submit(vpn_connection, headers),
+            executor.submit(rrd_net, headers),
+            executor.submit(rrd_switch, headers),
+            executor.submit(storage_disk, headers)
+        ]
+        concurrent.futures.wait(futures)
 
 def get_or_create_gauge(name, description, labelnames=[]):
     if name not in existing_metrics:
