@@ -60,6 +60,7 @@ Once the application starts you have 10 minutes to validate the authentication o
 
 once validated, go to your freebox panel.
 - Paramètres de la Freebox > Gestion des accès > Applications
+
 And add the right: **Modification des réglages de la Freebox**
 
 ![Rights](https://github.com/mazama923/freebox-monitoring/blob/main/doc/img/rights.png)
