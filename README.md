@@ -49,6 +49,25 @@ cd freebox-monitoring/app/
 pip install -r requirements.txt
 ```
 ```bash
+vi .env
+```
+
+Adapt the paths to your needs
+
+```env
+APP_ID = "freebox.monitoring"
+APP_NAME = "FreeboxMonitoring"
+APP_VERSION = "0.0.1"
+DEVICE_NAME = "FreeboxMonitoring"
+
+BASE_API_URL = "https://mafreebox.freebox.fr"
+
+TOKEN_FILE_PATH = /token/token.json
+CERT_FILE_PATH = /app/cert/freebox_ecc_root_ca.pem
+SCRAPE_INTERVAL = 30
+PORT_HTTP = 8000
+```
+```bash
 python3 main.py
 ```
 
