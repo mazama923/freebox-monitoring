@@ -1,10 +1,12 @@
 # freebox-monitoring
 
 Monitoring tool for the freebox delta.
+
 Using prometheus to retrieve metrics from the free api and grafana for visualization.
 
-![Grafana1](https://github.com/mazama923/freebox-monitoring/tree/main/doc/img/grafana1.png)
-![Grafana2](https://github.com/mazama923/freebox-monitoring/tree/main/doc/img/grafana2.png)
+![Grafana1](https://github.com/mazama923/freebox-monitoring/blob/main/doc/img/grafana1.png)
+
+![Grafana2](https://github.com/mazama923/freebox-monitoring/blob/main/doc/img/grafana2.png)
 
 Link for dashboard: https://grafana.com/grafana/dashboards/20394-freebox-monitoring/
 
@@ -60,6 +62,6 @@ once validated, go to your freebox panel.
 - Paramètres de la Freebox > Gestion des accès > Applications
 And add the right: **Modification des réglages de la Freebox**
 
-![Rights](https://github.com/mazama923/freebox-monitoring/tree/main/doc/img/rights.png)
+![Rights](https://github.com/mazama923/freebox-monitoring/blob/main/doc/img/rights.png)
 
 once done the application is ready and able to retrieve the metrics
